@@ -10,25 +10,24 @@
             --bg: #ffffff; --sec-bg: #f4f4f5; --text: #000000; --hint: #707579;
             --card-border: rgba(0,0,0,0.1); --accent: #3390ec; --accent-red: #ff3b30; --accent-green: #34c759;
             --toggle-off: #dee2e6;
-            --body-fill: #ffffff; /* Белый фон для светлой темы */
         }
         [data-theme="dark"] {
             --bg: #1c1c1d; --sec-bg: #2c2c2e; --text: #ffffff; --hint: #8e8e93; 
             --card-border: rgba(255,255,255,0.1); --toggle-off: #3a3a3c;
-            --body-fill: linear-gradient(-45deg, #080c14, #12121f, #1a1a2e, #080c14);
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             color: var(--text); margin: 0; padding: 16px;
-            display: flex; flex-direction: column; gap: 12px; transition: 0.3s;
+            display: flex; flex-direction: column; gap: 12px; transition: background 0.3s;
             min-height: 100vh;
-            background: var(--body-fill); /* Используем переменную */
-            background-size: 400% 400%;
+            background-color: #ffffff; /* Всегда белый по умолчанию */
         }
 
-        /* Анимация работает только в темной теме */
+        /* Исправленный градиент для темной темы */
         [data-theme="dark"] body {
+            background: linear-gradient(-45deg, #0a0a0f, #12121f, #1a1a2e, #0a0a0f) !important;
+            background-size: 400% 400% !important;
             animation: gradient-animation 10s ease infinite;
         }
 
@@ -49,9 +48,6 @@
         }
 
         .card { background: var(--sec-bg); border-radius: 16px; padding: 14px; border: 1px solid var(--card-border); }
-        .error-border { border-color: var(--accent-red) !important; animation: shake 0.3s; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-
         label { font-size: 10px; color: var(--hint); font-weight: 800; text-transform: uppercase; margin-bottom: 4px; display: block; }
         input, select, textarea {
             background: var(--bg); border: 1px solid var(--card-border); border-radius: 10px;
@@ -67,7 +63,6 @@
         .slider:before {
             position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
             background-color: white; transition: .3s; border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         input:checked + .slider { background-color: var(--accent-green); }
         input:checked + .slider:before { transform: translateX(18px); }
@@ -76,7 +71,6 @@
             background: var(--sec-bg); border: 1px dashed var(--hint); border-radius: 12px;
             padding: 12px; font-family: monospace; font-size: 12px; white-space: pre-line;
             max-height: 0; opacity: 0; overflow: hidden; transition: 0.4s ease-in-out;
-            margin: 0;
         }
         .preview-box.show { max-height: 400px; opacity: 1; margin-bottom: 10px; border: 1px solid var(--accent); }
 
@@ -131,7 +125,7 @@
 <div class="card" style="padding: 12px 14px;">
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <span style="font-size: 14px; font-weight: 700;">🚨 Срочный заказ</span>
-        <label class="switch" style="display: flex; align-items: center;">
+        <label class="switch">
             <input type="checkbox" id="urgent" onchange="update()">
             <span class="slider"></span>
         </label>
@@ -164,14 +158,6 @@
 
     setTimeout(() => document.getElementById('skeleton').style.display = 'none', 1000);
 
-    function setDatePlaceholder() {
-        const now = new Date();
-        const dd = String(now.getDate()).padStart(2, '0');
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        document.getElementById('date').placeholder = `${dd}.${mm}`;
-    }
-    setDatePlaceholder();
-
     function toggleTheme() {
         const isDark = document.body.getAttribute('data-theme') === 'dark';
         document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
@@ -186,17 +172,13 @@
 
     function update() {
         const type = document.getElementById('type').value;
-        const countInput = document.getElementById('count');
-        const dateInput = document.getElementById('date');
-        const priceInput = document.getElementById('price');
+        const count = document.getElementById('count').value;
+        const date = document.getElementById('date').value;
+        const price = document.getElementById('price').value;
         const details = document.getElementById('details').value || 'нет';
         const isUrgent = document.getElementById('urgent').checked;
 
-        let val = dateInput.value.replace(/\D/g, '');
-        if (val.length > 2) val = val.substring(0, 2) + '.' + val.substring(2, 4);
-        dateInput.value = val;
-
-        if (countInput.value && dateInput.value.length === 5 && priceInput.value) {
+        if (count && date.length === 5 && price) {
             document.getElementById('preview').classList.add('show');
         } else {
             document.getElementById('preview').classList.remove('show');
@@ -205,45 +187,28 @@
         document.getElementById('unit-label').innerText = type.includes("През") ? "Количество слайдов" : "Количество страниц";
 
         let header = isUrgent ? '🚨 СРОЧНЫЙ ЗАКАЗ 🚨\n' : '';
-        const text = `${header}1. Вид: ${type}
-2. Количество: ${countInput.value || '___'}
-3. Срок: ${dateInput.value || '___'}
-4. Сумма: ${priceInput.value || '___'} руб.
-5. Детали: ${details}
----
-✅ Согласен на 100% предоплату и отсутствие антиплагиата.`;
-
+        const text = `${header}1. Вид: ${type}\n2. Количество: ${count || '___'}\n3. Срок: ${date || '___'}\n4. Сумма: ${price || '___'} руб.\n5. Детали: ${details}\n---\n✅ Согласен на 100% предоплату.`;
         document.getElementById('preview').innerText = text;
     }
 
     function copy() {
-        const c = document.getElementById('count'), d = document.getElementById('date'), p = document.getElementById('price');
-        if (!c.value || d.value.length < 5 || !p.value) {
-            [c, d, p].forEach(el => { if(!el.value || el.value.length < 5) el.classList.add('error-border') });
-            tg.showAlert("Заполните все поля!");
-            return;
-        }
-
         const area = document.createElement("textarea");
         area.value = document.getElementById('preview').innerText;
         document.body.appendChild(area);
         area.select();
         document.execCommand('copy');
         document.body.removeChild(area);
-
-        tg.HapticFeedback.notificationOccurred('success');
-        tg.showAlert("Анкета скопирована!");
-        setTimeout(() => tg.openTelegramLink("https://t.me/awarem"), 500);
+        tg.showAlert("Скопировано!");
+        tg.openTelegramLink("https://t.me/awarem");
     }
 
     function clearAll() {
-        if(confirm("Очистить все поля?")) {
+        if(confirm("Очистить?")) {
             document.querySelectorAll('input, textarea').forEach(el => el.value = '');
             document.getElementById('urgent').checked = false;
             update();
         }
     }
-
     update();
 </script>
 </body>
