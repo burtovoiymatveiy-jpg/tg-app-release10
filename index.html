@@ -155,21 +155,20 @@
 
 <div class="disclaimer">
     💳 <b>Предоплата 100%</b> | ✅ Без антиплагиата<br>
-    Работа выполняется по вашим требованиям.
+    Работа выполняется по вашим требованиям.<br>
+    <span style="opacity: 0.4; font-size: 8px; display: block; margin-top: 4px;">v. Beta 0.24</span>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // Функция для получения даты +7 дней
     function getAutoDate() {
         const d = new Date();
         d.setDate(d.getDate() + 7);
         return String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0');
     }
 
-    // Ставим дату в placeholder
     document.getElementById('date').placeholder = getAutoDate();
 
     function showTip(f) {
@@ -215,7 +214,6 @@
         const type = document.getElementById('type').value,
               count = document.getElementById('count').value, 
               dateInput = document.getElementById('date').value,
-              // Если в поле пусто, берем дату через неделю
               finalDate = dateInput || getAutoDate(),
               price = document.getElementById('price').value, 
               det = document.getElementById('details').value || 'не указаны',
